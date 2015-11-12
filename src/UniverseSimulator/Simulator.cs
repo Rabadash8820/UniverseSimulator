@@ -11,28 +11,24 @@ namespace Universe {
             Vertical,
             Horizontal
         }
-        private struct Pull {
-            public double Up { get; set; }
-            public double Down { get; set; }
-            public double Left { get; set; }
-            public double Right { get; set; }
-        }
         private struct Rank {
             public Dictionary<Direction, double> Pulls { get; set; }
             public Direction MaxDirection { get; set; }
         }
 
-        // ENCAPSULATED FIELDS
+        // HIDDEN FIELDS
         private Particle[,] _lattice;
         private Random _rand;
+        private Dictionary<Particle, bool> _moveAttempts;
 
         // CONSTRUCTORS
         public Simulator(int size, int numParticles, int numElements, double temp = 0d) {
-            // Allocate memory
+            // Definte private variables
             _rand = new Random();
             _lattice = new Particle[size, size];
+            _moveAttempts = new Dictionary<Particle, bool>();
 
-            // Define lattice parameters
+            // Define lattice properties
             Size = size;
             ParticleCount = numParticles;
             ElementCount = numElements;
@@ -70,7 +66,7 @@ namespace Universe {
                     if (p == null)
                         continue;
                     
-                    Rank r = particleRank(p);
+                    Rank r = getParticleRank(p);
                     ranks.Add(p, r);
                 }
             }
@@ -98,9 +94,10 @@ namespace Universe {
                 } while (_lattice[x, y] != null);
                 Particle particle = new Particle(atomicNum, x, y, Temperature);
                 _lattice[x, y] = particle;
+                _moveAttempts.Add(particle, false);
             }
         }
-        private Rank particleRank(Particle particle) {
+        private Rank getParticleRank(Particle particle) {
             int x = particle.Position.X;
             int y = particle.Position.Y;
 
@@ -132,19 +129,21 @@ namespace Universe {
 
             // Store the effective pull in each direction
             Dictionary<Direction, double> pulls = new Dictionary<Direction, double>() {
-                { Direction.Vertical, sumUp - sumDown },
+                { Direction.Vertical, sumDown - sumUp },
                 { Direction.Horizontal, sumRight - sumLeft },
             };
 
             // Get the max Direction
             double max = 0d;
             Direction maxDir = Direction.Vertical;
-            if (Math.Abs(pulls[Direction.Vertical]) > max) {
-                max = pulls[Direction.Vertical];
+            double absVert = Math.Abs(pulls[Direction.Vertical]);
+            if (absVert > max) {
+                max = absVert;
                 maxDir = Direction.Vertical;
             }
-            if (Math.Abs(pulls[Direction.Horizontal]) > max) {
-                max = pulls[Direction.Horizontal];
+            double absHorz = Math.Abs(pulls[Direction.Horizontal]);
+            if (absHorz > max) {
+                max = absHorz;
                 maxDir = Direction.Horizontal;
             }
 
@@ -156,8 +155,9 @@ namespace Universe {
             return r;
         }
         private bool processRank(Particle p, Rank rank, ref Dictionary<Particle, Rank> ranks) {
+            _moveAttempts[p] = true;
             bool particleMoved = false;
-
+            
             // Try to move the Particle in its preferred direction
             Direction dir = rank.MaxDirection;
             int offset = Math.Sign(rank.Pulls[dir]);
@@ -180,6 +180,7 @@ namespace Universe {
 
             // Either way, this Particle has been processed, so remove it from the Dictionary
             ranks.Remove(p);
+            _moveAttempts[p] = false;
             return particleMoved;
         }
         private bool canMoveInDirection(Particle p, Rank rank, Direction dir, int offset, ref Dictionary<Particle, Rank> ranks) {
@@ -202,6 +203,8 @@ namespace Universe {
             // Recursive case: the position is occupied, so return whether or not the neighbor can move
             if (!ranks.ContainsKey(neighbor))
                 return false;
+            if (_moveAttempts[p])
+                return true;
             bool neighborCanMove = processRank(neighbor, ranks[neighbor], ref ranks);
             return neighborCanMove;
         }
@@ -209,7 +212,8 @@ namespace Universe {
             int x = p.Position.X;
             int y = p.Position.Y;
 
-            _lattice[x, y] = null;
+            if (_lattice[x, y].Equals(p))
+                _lattice[x, y] = null;
             bool vertMax = (dir == Direction.Vertical);
             if (vertMax) {
                 _lattice[x, y + offset] = p;

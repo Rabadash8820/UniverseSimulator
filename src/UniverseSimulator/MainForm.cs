@@ -145,8 +145,8 @@ namespace UniverseSimulator {
             _bmp = new Bitmap(PARTICLE_SIZE * size, PARTICLE_SIZE * size, PixelFormat.Format24bppRgb);
             IList<Particle> particles = _simulator.Particles;
             foreach (Particle p in particles) {
-                for (int px = 2; px < PARTICLE_SIZE - 2; ++px) {
-                    for (int py = 2; py < PARTICLE_SIZE - 2; ++py) {
+                for (int px = 1; px < PARTICLE_SIZE - 1; ++px) {
+                    for (int py = 1; py < PARTICLE_SIZE - 1; ++py) {
                         int x = PARTICLE_SIZE * p.Position.X + px;
                         int y = PARTICLE_SIZE * p.Position.Y + py;
                         _bmp.SetPixel(x, y, _colors[p.AtomicNumber]);
