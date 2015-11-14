@@ -40,6 +40,7 @@
             this.SizeUpDown = new System.Windows.Forms.NumericUpDown();
             this.PlayPauseBtn = new System.Windows.Forms.Button();
             this.SimulationWorker = new System.ComponentModel.BackgroundWorker();
+            this.EnergyLbl = new System.Windows.Forms.Label();
             this.MainTblLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MainPicBox)).BeginInit();
             this.ParamsPanel.SuspendLayout();
@@ -80,6 +81,7 @@
             // 
             this.ParamsPanel.Controls.Add(this.StopBtn);
             this.ParamsPanel.Controls.Add(this.FpsLbl);
+            this.ParamsPanel.Controls.Add(this.EnergyLbl);
             this.ParamsPanel.Controls.Add(this.IterationLbl);
             this.ParamsPanel.Controls.Add(this.FpsUpDown);
             this.ParamsPanel.Controls.Add(this.ElementsLbl);
@@ -144,7 +146,7 @@
             this.FpsUpDown.Size = new System.Drawing.Size(44, 20);
             this.FpsUpDown.TabIndex = 13;
             this.FpsUpDown.Value = new decimal(new int[] {
-            1,
+            10,
             0,
             0,
             0});
@@ -281,6 +283,15 @@
             this.SimulationWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SimulationWorker_DoWork);
             this.SimulationWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.SimulationWorker_RunWorkerCompleted);
             // 
+            // EnergyLbl
+            // 
+            this.EnergyLbl.AutoSize = true;
+            this.EnergyLbl.Location = new System.Drawing.Point(428, 87);
+            this.EnergyLbl.Name = "EnergyLbl";
+            this.EnergyLbl.Size = new System.Drawing.Size(43, 13);
+            this.EnergyLbl.TabIndex = 14;
+            this.EnergyLbl.Text = "Energy:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -323,6 +334,7 @@
         private System.Windows.Forms.Button StopBtn;
         private System.ComponentModel.BackgroundWorker SimulationWorker;
         private System.Windows.Forms.Label FpsLbl;
+        private System.Windows.Forms.Label EnergyLbl;
     }
 }
 

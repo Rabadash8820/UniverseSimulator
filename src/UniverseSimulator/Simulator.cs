@@ -20,6 +20,7 @@ namespace Universe {
         private Particle[,] _lattice;
         private Random _rand;
         private Dictionary<Particle, bool> _moveAttempts;
+        private double _energy;
 
         // CONSTRUCTORS
         public Simulator(int size, int numParticles, int numElements, double temp = 0d) {
@@ -56,6 +57,9 @@ namespace Universe {
                 return particles;
             }
         }
+        public double Energy {
+            get { return _energy; }
+        }
         public void Iterate() {
             Dictionary<Particle, Rank> ranks = new Dictionary<Particle, Rank>();
 
@@ -70,6 +74,9 @@ namespace Universe {
                     ranks.Add(p, r);
                 }
             }
+
+            // Compute the energy of the system in this Iteration
+            _energy = ranks.Sum(r => Math.Abs(r.Value.Pulls[r.Value.MaxDirection]));
 
             // Sort the particles by the max magnitude of all their pull directions
             ranks = ranks.OrderBy(r => r.Value.Pulls[r.Value.MaxDirection])

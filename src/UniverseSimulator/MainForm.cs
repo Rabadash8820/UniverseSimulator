@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Windows;
+using System.IO;
+using System.Text;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -13,12 +14,14 @@ namespace UniverseSimulator {
 
     public partial class MainForm : Form {
         // ENCAPUSLATED FIELDS
+        private StreamWriter _outputStrm;
         private Simulator _simulator;
         private Bitmap _bmp;
         private Dictionary<int, Color> _colors;
         private const short PARTICLE_SIZE = 8;
         private long _iteration;
-        bool _started;
+        private bool _started;
+
 
         // CONSTRUCTORS
         public MainForm() {
@@ -48,7 +51,6 @@ namespace UniverseSimulator {
             };
 
             _started = false;
-
             _bmp = new Bitmap(1,1);
         }
         
@@ -70,7 +72,10 @@ namespace UniverseSimulator {
                 _iteration = 0;
                 _simulator = new Simulator(size, numParticles, numElements, temp);
                 _bmp = new Bitmap(PARTICLE_SIZE * size, PARTICLE_SIZE * size, PixelFormat.Format24bppRgb);
-                draw();
+
+                // Set up output file
+                _outputStrm = new StreamWriter("output.csv", false);
+                output();
 
                 StopBtn.Enabled = true;
             }
@@ -84,6 +89,7 @@ namespace UniverseSimulator {
         private void StopBtn_Click(object sender, EventArgs e) {
             SimulationWorker.CancelAsync();
             _started = false;
+            _outputStrm.Close();
 
             // Adjust controls
             StopBtn.Enabled = false;
@@ -103,7 +109,7 @@ namespace UniverseSimulator {
                 // Do an iteration
                 start = DateTime.Now;
                 _simulator.Iterate();
-                draw();
+                output();
                 end = DateTime.Now;
 
                 Invoke(new Action(() => {
@@ -139,7 +145,7 @@ namespace UniverseSimulator {
 
             toggleSimulationCtrls(false);
         }
-        private void draw() {
+        private void output() {
             // Draw the Bitmap;
             int size = _simulator.Size;
             _bmp = new Bitmap(PARTICLE_SIZE * size, PARTICLE_SIZE * size, PixelFormat.Format24bppRgb);
@@ -154,11 +160,19 @@ namespace UniverseSimulator {
                 }
             }
 
-            // Refresh the PictureBox containing this Bitmap
+            // Output the Energy
+            Invoke(new Action(() => {
+                EnergyLbl.Text = $"Energy: {_simulator.Energy:N2}";
+            }));
 
+            // Refresh the PictureBox containing this Bitmap
             Invoke(new Action(() => {
                 MainPicBox.Refresh();
             }));
+
+            // Write to File
+            string str = $"{_iteration},{_simulator.Energy}";
+            _outputStrm.WriteLine(str);
         }
         private void toggleSimulationCtrls(bool running) {
             PlayPauseBtn.Text = (running ? "Pause" : "Play");
