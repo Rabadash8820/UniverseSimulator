@@ -118,8 +118,7 @@ namespace UniverseSimulator {
             e.Cancel = true;
         }
         private void SimulationWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            if (e.Cancelled && !_started)
-                IterationLbl.Text = $"Iteration: {0}";
+
         }
         private void SizeUpDown_ValueChanged(object sender, EventArgs e) {
             int size = (int)SizeUpDown.Value;
@@ -141,14 +140,14 @@ namespace UniverseSimulator {
             toggleSimulationCtrls(false);
         }
         private void stop() {
-            _started = false;
-            _outputStrm.Close();
+            SimulationWorker.CancelAsync();
 
             // Adjust controls
             StopBtn.Enabled = false;
-            if (PlayPauseBtn.Text == "Play")
-                IterationLbl.Text = $"Iteration: {0}";
             toggleSimulationCtrls(false);
+            
+            _started = false;
+            _outputStrm.Close();
         }
         private void output() {
             // Draw the Bitmap;
@@ -177,7 +176,8 @@ namespace UniverseSimulator {
 
             // Write to File
             string str = $"{_iteration},{_simulator.Energy}";
-            _outputStrm.WriteLine(str);
+            if (StopBtn.Enabled == true)
+                _outputStrm.WriteLine(str);
         }
         private void toggleSimulationCtrls(bool running) {
             PlayPauseBtn.Text = (running ? "Pause" : "Play");
