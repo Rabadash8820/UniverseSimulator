@@ -302,6 +302,7 @@
             this.Name = "MainForm";
             this.Text = "Universe Simulator";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.MainTblLayout.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.MainPicBox)).EndInit();
             this.ParamsPanel.ResumeLayout(false);

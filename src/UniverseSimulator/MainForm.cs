@@ -87,15 +87,7 @@ namespace UniverseSimulator {
                 pause();
         }
         private void StopBtn_Click(object sender, EventArgs e) {
-            SimulationWorker.CancelAsync();
-            _started = false;
-            _outputStrm.Close();
-
-            // Adjust controls
-            StopBtn.Enabled = false;
-            if (PlayPauseBtn.Text == "Play")
-                IterationLbl.Text = $"Iteration: {0}";
-            toggleSimulationCtrls(false);
+            stop();
         }
         private void SimulationWorker_DoWork(object sender, DoWorkEventArgs e) {
             // Define some variables so we're not allocating as much memory every loop
@@ -133,6 +125,9 @@ namespace UniverseSimulator {
             int size = (int)SizeUpDown.Value;
             ParticlesUpDown.Maximum = (int)(size * size * 0.8);
         }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+            stop();
+        }
 
         // HELPER FUNCTIONS
         private void play() {
@@ -143,6 +138,16 @@ namespace UniverseSimulator {
         private void pause() {
             SimulationWorker.CancelAsync();
 
+            toggleSimulationCtrls(false);
+        }
+        private void stop() {
+            _started = false;
+            _outputStrm.Close();
+
+            // Adjust controls
+            StopBtn.Enabled = false;
+            if (PlayPauseBtn.Text == "Play")
+                IterationLbl.Text = $"Iteration: {0}";
             toggleSimulationCtrls(false);
         }
         private void output() {
